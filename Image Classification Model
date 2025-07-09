@@ -1,0 +1,74 @@
+pip install tensorflow
+!pip install numpy==1.24.4 --force-reinstall
+
+import numpy as np
+print(np.__version__)
+
+import tensorflow as tf
+from tensorflow.keras import datasets, layers, models
+import matplotlib.pyplot as plt
+from sklearn.metrics import classification_report, confusion_matrix
+import numpy as np
+
+# 1. Load CIFAR-10 Dataset
+(x_train, y_train), (x_test, y_test) = datasets.cifar10.load_data()
+x_train, x_test = x_train / 255.0, x_test / 255.0  # Normalize
+y_train = y_train.flatten()
+y_test = y_test.flatten()
+
+# 2. Define Class Labels
+class_names = ['airplane', 'automobile', 'bird', 'cat', 'deer',
+               'dog', 'frog', 'horse', 'ship', 'truck']
+
+# 3. Build CNN Model
+model = models.Sequential([
+    layers.Conv2D(32, (3, 3), activation='relu', input_shape=(32, 32, 3)),
+    layers.MaxPooling2D((2, 2)),
+
+    layers.Conv2D(64, (3, 3), activation='relu'),
+    layers.MaxPooling2D((2, 2)),
+
+    layers.Conv2D(64, (3, 3), activation='relu'),
+
+    layers.Flatten(),
+    layers.Dense(64, activation='relu'),
+    layers.Dense(10, activation='softmax')  # 10 classes
+])
+
+# 4. Compile the Model
+model.compile(optimizer='adam',
+              loss='sparse_categorical_crossentropy',
+              metrics=['accuracy'])
+
+# 5. Train the Model
+history = model.fit(x_train, y_train, epochs=10,
+                    validation_data=(x_test, y_test))
+
+# 6. Evaluate on Test Data
+test_loss, test_acc = model.evaluate(x_test, y_test)
+print("\nTest Accuracy:", test_acc)
+
+# 7. Classification Report
+y_pred = model.predict(x_test)
+y_pred_classes = np.argmax(y_pred, axis=1)
+
+print("\nClassification Report:")
+print(classification_report(y_test, y_pred_classes, target_names=class_names))
+
+# 8. Confusion Matrix
+conf_matrix = confusion_matrix(y_test, y_pred_classes)
+print("\nConfusion Matrix:\n", conf_matrix)
+
+# Show some test images and predictions
+
+
+def show_predictions(n=5):
+    indices = np.random.choice(len(x_test), n)
+    for i in indices:
+        plt.imshow(x_test[i])
+        plt.title(f"True: {class_names[y_test[i]]} | Pred: {class_names[y_pred_classes[i]]}")
+        plt.axis('off')
+        plt.show()
+
+show_predictions(5)
+
