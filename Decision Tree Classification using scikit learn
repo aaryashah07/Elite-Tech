@@ -1,0 +1,43 @@
+# Decision Tree Classification using scikit-learn
+
+# Step 1: Import Libraries
+import numpy as np
+import pandas as pd
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier, plot_tree
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Step 2: Load Dataset
+df = pd.read_csv('iris.csv')
+
+# Step 3: Split the dataset
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+# Step 4: Train Decision Tree Classifier
+clf = DecisionTreeClassifier(criterion='gini', max_depth=3, random_state=42)
+clf.fit(X_train, y_train)
+
+# Step 5: Predict on test set
+y_pred = clf.predict(X_test)
+
+# Step 6: Evaluate the model
+print("Accuracy:", accuracy_score(y_test, y_pred))
+print("\nClassification Report:\n", classification_report(y_test, y_pred, target_names=target_names))
+print("\nConfusion Matrix:\n", confusion_matrix(y_test, y_pred))
+
+# Step 7: Visualize the Tree
+plt.figure(figsize=(12,8))
+plot_tree(clf, filled=True, feature_names=feature_names, class_names=target_names, rounded=True)
+plt.title("Decision Tree Visualization")
+plt.show()
+
+# Step 8: Heatmap of Confusion Matrix
+sns.heatmap(confusion_matrix(y_test, y_pred), annot=True, fmt='d',
+            xticklabels=target_names, yticklabels=target_names, cmap='Blues')
+plt.xlabel("Predicted")
+plt.ylabel("True")
+plt.title("Confusion Matrix Heatmap")
+plt.show()
